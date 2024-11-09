@@ -6,3 +6,7 @@
 *{
   font-family: Poppins;
 }
+
+a.active hr{
+  display:block;
+}
