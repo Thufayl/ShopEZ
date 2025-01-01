@@ -1,7 +1,12 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import wallpaper from '../assets/wallpaper.webp'
+import {ShopContext} from '../context/ShopContext'
 
 const Hero = () => {
+
+
+  const {navigate} = useContext(ShopContext);
+
   return (
     <div 
             className="relative bg-cover bg-top h-[70vh] md:h-[85vh] flex items-center justify-center text-center text-white px-4" 
@@ -20,7 +25,7 @@ const Hero = () => {
                     Shop the latest trends with amazing deals and discounts.
                 </p>
 
-                <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg transition duration-300 transform hover:scale-105">
+                <button onClick={() => navigate('/collection')} className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg transition duration-300 transform hover:scale-105">
                     Shop Now
                 </button>
             </div>

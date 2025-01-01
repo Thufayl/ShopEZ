@@ -1,88 +1,113 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import React, { useContext, useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
-import { assets } from '../assets/assets';
 import RelatedProducts from '../components/RelatedProducts';
 
 const Product = () => {
-
-  const {productId} = useParams();
-  const {products, currency, addToCart} = useContext(ShopContext);
-  const [productData, setProductData] = useState(false);
-  const [image, setImage] = useState('');
-  const [size, setSize] = useState('');
-
-  const fetchProductData = async () => {
-
-      products.map((item) =>{
-        if(item._id == productId){
-          setProductData(item);
-          setImage(item.image[0]);
-          return null;
-        }
-      })
-  }
+  const { productId } = useParams();
+  const { products, currency, addToCart } = useContext(ShopContext);
+  const [product, setProduct] = useState(null);
+  const [currentImage, setCurrentImage] = useState('');
+  const [selectedSize, setSelectedSize] = useState('');
 
   useEffect(() => {
-    fetchProductData();
-  },[productId, products])
+    const selectedProduct = products.find((item) => item._id === productId);
+    if (selectedProduct) {
+      setProduct(selectedProduct);
+      setCurrentImage(selectedProduct.image[0]);
+    }
+  }, [productId, products]);
 
-  return productData ?(
-    <div className='border-t-2 pt-10 transition-opacity ease-in duration-500 opacity-100'>
-      {/* Product Data */}
-      <div className='flex gap-12 sm:gap-12 flex-col sm:flex-row'>
+  if (!product) {
+    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+  }
 
-        {/*---------- Product Images------------- */}
-        <div className='flex-1 flex flex-col-reverse gap-3 sm:flex-row'>
-          <div className='flex sm:flex-col overflow-x-auto sm:overflow-y-scroll justify-between sm:justify-normal sm:w-[18.7%] w-full'>
-              {
-                productData.image.map((item,index)=>(
-                  <img onClick={()=>setImage(item)} src={item} key={index} className='w-[24%] sm:w-full sm:mb-3 flex-shrink-0 cursor-pointer' alt="" />
-                ))
-              }
+  return (
+    <div className="bg-gray-50 py-10">
+      <div className="container mx-auto px-4 lg:px-8">
+        {/* Product Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Images Section */}
+          <div className="space-y-4">
+            <div className="w-full rounded-lg overflow-hidden border">
+              <img
+                src={currentImage}
+                alt={product.name}
+                className="w-full h-auto object-contain"
+              />
+            </div>
+            <div className="flex gap-4 overflow-x-auto">
+              {product.image.map((img, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentImage(img)}
+                  className={`w-20 h-20 border rounded overflow-hidden flex-shrink-0 ${
+                    img === currentImage ? 'border-blue-500' : 'border-gray-300'
+                  }`}
+                >
+                  <img src={img} alt="thumbnail" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
           </div>
-          <div className='w-full sm:w-[80%]'>
-              <img className='w-full h-auto' src={image} alt="" />
+
+          {/* Product Info Section */}
+          <div className="space-y-6">
+            <h1 className="text-3xl font-bold text-gray-800">{product.name}</h1>
+            <div className="flex items-center space-x-2">
+              <span className="text-yellow-500">★★★★★</span>
+              <span className="text-gray-600">(122 Reviews)</span>
+            </div>
+            <p className="text-xl text-gray-900 font-semibold">
+              {currency}
+              {product.price}
+            </p>
+            <p className="text-gray-600 leading-relaxed">{product.description}</p>
+
+            <div className="space-y-3">
+              <p className="font-medium text-gray-800">Choose Size:</p>
+              <div className="flex gap-3">
+                {product.sizes.map((size, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setSelectedSize(size)}
+                    className={`px-4 py-2 rounded border transition ${{
+                      'bg-blue-500 text-white': selectedSize === size,
+                      'bg-gray-100 text-gray-700': selectedSize !== size,
+                    }}`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
+              onClick={() => addToCart(product._id, selectedSize)}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg text-lg font-semibold hover:bg-blue-700"
+            >
+              Add to Cart
+            </button>
+
+            <ul className="text-sm text-gray-500 space-y-1">
+              <li>✔ 100% Original Products</li>
+              <li>✔ Cash on Delivery Available</li>
+              <li>✔ Easy Returns and Exchange</li>
+            </ul>
           </div>
         </div>
 
-        {/* -------- Product Info ---------- */}
-        <div className='flex-1'>
-          <h1 className='font-medium text-2xl mt-2'>{productData.name}</h1>
-          <div className=' flex items-center gap-1 mt-2'>
-              <img src={assets.star_icon} alt="" className="w-3 5" />
-              <img src={assets.star_icon} alt="" className="w-3 5" />
-              <img src={assets.star_icon} alt="" className="w-3 5" />
-              <img src={assets.star_icon} alt="" className="w-3 5" />
-              <img src={assets.star_dull_icon} alt="" className="w-3 5" />
-              <p className='pl-2'>(122)</p>
-          </div>
-          <p className='mt-5 text-3xl font-medium'>{currency}{productData.price}</p>
-          <p className='mt-5 text-gray-500 md:w-4/5'>{productData.description}</p>
-          <div className='flex flex-col gap-4 my-8'>
-              <p>Select Size</p>
-              <div className='flex gap-2'>
-                {productData.sizes.map((item,index)=>(
-                  <button onClick={()=>setSize(item)} className={`border py-2 px-4 bg-gray-100 ${item === size ? 'border-orange-500' : ''}`} key={index}>{item}</button>
-                ))}
-              </div>
-          </div>
-                <button onClick = {() => addToCart(productData._id, size)}className='bg-black text-white px-8 py-3 text-sm active:bg-gray-700'>ADD TO CART</button>
-                <hr className='mt-8 sm:w-4/5'/>
-                <div className='text-sm text-gray-500 mt-5 flex flex-col gap-1'>
-                      <p>100% Original Product</p>
-                      <p>Cash on Delivery available</p>
-                      <p>Easy return and Exchange Policy</p>
-                </div>
-              </div>
+        {/* Related Products */}
+        <section className="mt-12">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Related Products</h2>
+          <RelatedProducts
+            category={product.category}
+            subCategory={product.subCategory}
+          />
+        </section>
       </div>
-      
-
-      {/* display related products */}
-      <RelatedProducts category = {productData.category} subCategory= {productData.subCategory} />
-
     </div>
-  ): <div className='opacity-0'></div>
-}
+  );
+};
 
 export default Product;
